@@ -1,5 +1,6 @@
 ﻿using CqrsMediatr_ASPNetCore_API.Commands;
 using CqrsMediatr_ASPNetCore_API.Models;
+using CqrsMediatr_ASPNetCore_API.Notifications;
 using CqrsMediatr_ASPNetCore_API.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -12,8 +13,13 @@ namespace CqrsMediatr_ASPNetCore_API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ISender _sender;
+        private readonly IPublisher _publisher;
 
-        public ProductsController(ISender sender) => _sender = sender;
+        public ProductsController(ISender sender, IPublisher publisher)
+        {
+            _sender = sender;
+            _publisher = publisher;
+        }
 
         [HttpGet]
         [Route("GetProducts")]
@@ -35,6 +41,7 @@ namespace CqrsMediatr_ASPNetCore_API.Controllers
         public async Task<IActionResult> AddProduct([FromBody]Product product)
         {
             var productToReturn = await _sender.Send(new AddProductCommand(product));
+            await _publisher.Publish(new ProductAddedNotification(productToReturn));
 
             return CreatedAtRoute("GetProductById", new { id = productToReturn.Id }, productToReturn);
         }

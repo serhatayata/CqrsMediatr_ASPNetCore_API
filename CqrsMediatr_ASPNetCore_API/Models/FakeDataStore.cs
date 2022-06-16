@@ -21,8 +21,13 @@
             await Task.CompletedTask;
         }
 
+        #region GetAllProducts
         public async Task<IEnumerable<Product>> GetAllProducts() => await Task.FromResult(_products);
+        #endregion
+        #region GetProductById
         public async Task<Product> GetProductById(int id) => await Task.FromResult(_products.Single(p => p.Id == id));
+        #endregion
+        #region UpdateProduct
         public async Task<Product> UpdateProduct(Product product)
         {
             var value = _products.SingleOrDefault(p => p.Id == product.Id);
@@ -39,7 +44,8 @@
                 return new Product() { };
             }
         }
-
+        #endregion
+        #region DeleteProduct
         public async Task<bool> DeleteProduct(int id)
         {
             var value = _products.SingleOrDefault(p => p.Id == id);
@@ -50,5 +56,14 @@
             }
             return await Task.FromResult(false);
         }
+        #endregion
+        #region EventOccured
+        public async Task EventOccured(Product product,string evt)
+        {
+            _products.Single(p => p.Id == product.Id).Name = $"{product.Name} evt : {evt}";
+            await Task.CompletedTask;
+        }
+        #endregion
+
     }
 }
